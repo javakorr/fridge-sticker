@@ -9,4 +9,5 @@ html, body {
     height: 200px;
     background-color: yellow;
     cursor: pointer;
+    position: absolute;
 }
