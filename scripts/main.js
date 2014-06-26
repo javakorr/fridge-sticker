@@ -2,11 +2,26 @@
 
 var Sticker = React.createClass({
     componentDidMount: function() {
-        var draggie = new Draggabilly(this.getDOMNode(), {});
+        var draggie = new Draggabilly(this.getDOMNode(), {
+            containment: '.stickerList'
+        });
+
+        draggie.on('dragStart', function(instance, event, pointer) {
+            var element = instance.element,
+                stickers = document.querySelectorAll('.sticker');
+
+            for (var i=0; i<stickers.length; i++) {
+                stickers[i].style.zIndex = 100;
+            }
+
+            element.style.zIndex = 200;
+        });
     },
     render: function() {
         return (
-            <div className="sticker">{this.props.text}</div>
+            <div className="sticker">
+                {this.props.text}
+            </div>
         );
     }
 });
