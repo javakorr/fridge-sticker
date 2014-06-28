@@ -16,10 +16,11 @@ var Sticker = React.createClass({
         });
     },
     render: function() {
-        var styles = {zIndex: this.props.zIndex};
+        var styles = {zIndex: this.props.zIndex},
+            classString = 'sticker ' + this.props.bg;
 
         return (
-            <div className="sticker" style={styles}>
+            <div className={classString} style={styles}>
                 {this.props.text}
             </div>
         );
@@ -31,7 +32,7 @@ var StickerList = React.createClass({
         var self = this;
 
         var stickersList = this.props.stickers.map(function(sticker) {
-            return <Sticker stickerID={sticker.id} text={sticker.text} zIndex={sticker.zIndex} onDrag={self.props.onDrag} />;
+            return <Sticker stickerID={sticker.id} text={sticker.text} zIndex={sticker.zIndex} onDrag={self.props.onDrag} bg={sticker.bg} />;
         });
 
         return (
@@ -44,17 +45,27 @@ var StickerList = React.createClass({
 
 var AddStickerForm = React.createClass({
     addNewSticker: function() {
-        var newStickerName = this.refs.newStickerName.getDOMNode().value.trim();
+        var newStickerName = this.refs.newStickerName.getDOMNode().value.trim(),
+            newStickerColor = this.refs.newStickerColor.getDOMNode().value;
 
         if (!newStickerName) {
             return false;
         }
 
-        this.props.onStickerAdd({text: newStickerName});
+        this.props.onStickerAdd({text: newStickerName, bg: newStickerColor});
 
         this.refs.newStickerName.getDOMNode().value = "";
 
         return false;
+    },
+    componentDidMount: function() {
+        $(document).ready(function(e) {
+            try {
+                $('body select').msDropDown();
+            } catch(e) {
+                alert(e.message);
+            }
+        });
     },
     render: function() {
         return (
@@ -63,6 +74,11 @@ var AddStickerForm = React.createClass({
                     Add new sticker:
                     <input type="text" ref="newStickerName" />
                 </label>
+                <select className="colorSelect" ref="newStickerColor">
+                    <option value="yellow" data-image="images/yellow.gif"></option>
+                    <option value="green" data-image="images/green.gif"></option>
+                    <option value="red" data-image="images/red.gif"></option>
+                </select>
                 <button onClick={this.addNewSticker}>GO!</button>
             </div>
         );
