@@ -1,25 +1,25 @@
 /** @jsx React.DOM */
 
 var Sticker = React.createClass({
+    handleDrag: function(sticker) {
+        this.props.onDrag(sticker);
+    },
     componentDidMount: function() {
+        var self = this;
+
         var draggie = new Draggabilly(this.getDOMNode(), {
             containment: '.stickerList'
         });
 
         draggie.on('dragStart', function(instance, event, pointer) {
-            var element = instance.element,
-                stickers = document.querySelectorAll('.sticker');
-
-            for (var i=0; i<stickers.length; i++) {
-                stickers[i].style.zIndex = 100;
-            }
-
-            element.style.zIndex = 200;
+            self.handleDrag(self);
         });
     },
     render: function() {
+        var styles = {zIndex: this.props.zIndex};
+
         return (
-            <div className="sticker">
+            <div className="sticker" style={styles}>
                 {this.props.text}
             </div>
         );
@@ -28,8 +28,10 @@ var Sticker = React.createClass({
 
 var StickerList = React.createClass({
     render: function() {
+        var self = this;
+
         var stickersList = this.props.stickers.map(function(sticker) {
-            return <Sticker text={sticker.text} />;
+            return <Sticker stickerID={sticker.id} text={sticker.text} zIndex={sticker.zIndex} onDrag={self.props.onDrag} />;
         });
 
         return (
@@ -78,15 +80,43 @@ var Content = React.createClass({
     },
     handleStickerAdd: function(sticker) {
         var stickers = this.state.stickers,
-            updatedStickerList = stickers.concat([sticker]);
+            maxStickerByID = _.max(stickers, 'id'),
+            maxStickerByZ = _.max(stickers, 'zIndex');
+
+        sticker['id'] = ( maxStickerByID === -Infinity ) ? 0 : (maxStickerByID.id + 1);
+        sticker['zIndex'] = ( maxStickerByZ === -Infinity ) ? 100 : (maxStickerByZ.zIndex + 100);
+
+        var updatedStickerList = stickers.concat([sticker]);
 
         this.setState({stickers: updatedStickerList});
+    },
+    handleDrag: function(sticker) {
+        var stickerID = sticker.props.stickerID,
+            stickerZ = sticker.props.zIndex,
+            stickers = this.state.stickers,
+            maxZ = _.max(stickers, 'zIndex').zIndex;
+
+        if (stickers.length === 1) {
+            return false;
+        }
+
+        _.forEach(stickers, function(item) {
+            if (item.zIndex > stickerZ) {
+                item.zIndex -= 100;
+            }
+        });
+
+        _.find(stickers, {'id': stickerID}).zIndex = maxZ;
+
+        this.setState({stickers: stickers});
+
+        return false;
     },
     render: function() {
         return (
             <div className="content">
                 <AddStickerForm onStickerAdd={this.handleStickerAdd} />
-                <StickerList stickers={this.state.stickers} />
+                <StickerList stickers={this.state.stickers} onDrag={this.handleDrag} />
             </div>
         );
     }
