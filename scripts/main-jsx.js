@@ -1,63 +1,134 @@
 /** @jsx React.DOM */
 
-var Sticker = React.createClass({
-    handleDrag: function(sticker) {
-        this.props.onDrag(sticker);
-    },
-    componentDidMount: function() {
-        var self = this;
-
-        var draggie = new Draggabilly(this.getDOMNode(), {
-            containment: '.stickerList'
-        });
-
-        draggie.on('dragStart', function(instance, event, pointer) {
-            self.handleDrag(self);
-        });
-    },
-    render: function() {
-        var styles = {zIndex: this.props.zIndex},
-            classString = 'sticker ' + this.props.bg;
-
-        return (
-            <div className={classString} style={styles}>
-                {this.props.text}
-            </div>
-        );
+// BACKBONE MODELS
+var StickerModel = Backbone.Model.extend({
+    defaults: {
+        id: null,
+        text: null,
+        zIndex: null,
+        bg_color: null
     }
 });
 
-var StickerList = React.createClass({
+var StickerCollection = Backbone.Collection.extend({
+    model: StickerModel
+});
+
+// BACKBONE VIEWS
+var StickerListView = Backbone.View.extend({
+    el: '.sticker-list-wrap',
+    updateZ: function(model) {
+        var stickerID = model.get('id'),
+            stickerZ = model.get('zIndex'),
+            stickers = this.collection.clone().toJSON(),
+            maxZ = _.max(stickers, 'zIndex').zIndex;
+
+        if (stickers.length === 1) {
+            return false;
+        }
+
+        this.collection.each(function(item) {
+            if (item.get('zIndex') > stickerZ) {
+                item.set('zIndex', item.get('zIndex') - 100);
+            }
+        });
+
+        model.set('zIndex', maxZ);
+
+        return false;
+    },
+    render: function() {
+        React.renderComponent(<StickerListComponent stickers={this.collection} onDrag={this.updateZ.bind(this)} />, this.el);
+
+        return this;
+    }
+});
+
+var AddStickerFormView = Backbone.View.extend({
+    el: '.add-sticker-form-wrap',
+    addSticker: function(new_sticker) {
+        var stickers = this.collection.clone().toJSON(),
+            maxStickerByID = _.max(stickers, 'id'),
+            maxStickerByZ = _.max(stickers, 'zIndex');
+
+        new_sticker['id'] = ( maxStickerByID === -Infinity ) ? 0 : (maxStickerByID.id + 1);
+        new_sticker['zIndex'] = ( maxStickerByZ === -Infinity ) ? 100 : (maxStickerByZ.zIndex + 100);
+
+        var model = new StickerModel(new_sticker);
+
+        this.collection.add(model);
+    },
+    render: function() {
+        React.renderComponent(<AddStickerFormComponent pushNewSticker={this.addSticker.bind(this)} />, this.el);
+
+        return this;
+    }
+});
+
+// REACT COMPONENTS
+var StickerListComponent = React.createClass({
+    getInitialState: function() {
+        return {
+            stickers: []
+        };
+    },
+    componentWillMount: function() {
+        var self = this;
+
+        self.setState({stickers: self.props.stickers});
+
+        self.props.stickers.on('add', function() {
+            self.forceUpdate();
+        });
+    },
+    updateZ: function(model) {
+        this.props.onDrag(model);
+    },
     render: function() {
         var self = this;
 
-        var stickersList = this.props.stickers.map(function(sticker) {
-            return <Sticker stickerID={sticker.id} text={sticker.text} zIndex={sticker.zIndex} onDrag={self.props.onDrag} bg={sticker.bg} />;
+        var stickers = this.state.stickers.map(function(sticker) {
+            return <Sticker sticker_model={sticker} stickerID={sticker.get('id')} text={sticker.get('text')} zIndex={sticker.get('.zIndex')} bg_color={sticker.get('bg_color')} onDrag={self.updateZ} />;
         });
 
         return (
             <div className="stickerList">
-                {stickersList}
+                {stickers}
             </div>
         );
     }
 });
 
-var AddStickerForm = React.createClass({
-    addNewSticker: function() {
-        var newStickerName = this.refs.newStickerName.getDOMNode().value.trim(),
-            newStickerColor = this.refs.newStickerColor.getDOMNode().value;
+var Sticker = React.createClass({
+    componentWillMount: function() {
+        var self = this;
 
-        if (!newStickerName) {
-            return false;
-        }
-
-        this.props.onStickerAdd({text: newStickerName, bg: newStickerColor});
-
-        this.refs.newStickerName.getDOMNode().value = "";
-
-        return false;
+        self.props.sticker_model.on('change', function() {
+            self.forceUpdate();
+        });
     },
+    componentDidMount: function() {
+        var self = this;
+
+        var draggie = new Draggabilly(self.getDOMNode(), {
+            containment: '.stickerList'
+        });
+
+        draggie.on('dragStart', function(instance, event, pointer) {
+            self.props.onDrag(self.props.sticker_model);
+        });
+    },
+    render: function() {
+        var styles = {zIndex: this.props.sticker_model.get('zIndex')},
+            classString = 'sticker ' + this.props.bg_color;
+
+        return (
+            <div className={classString} style={styles}>{this.props.text}</div>
+        );
+    }
+});
+
+var AddStickerFormComponent = React.createClass({
     componentDidMount: function() {
         $(document).ready(function(e) {
             try {
@@ -67,79 +138,44 @@ var AddStickerForm = React.createClass({
             }
         });
     },
+    handleClick: function() {
+        var new_sticker_text = this.refs.newStickerText.getDOMNode().value,
+            new_sticker_bg_color = this.refs.newStickerBGColor.getDOMNode().value;
+
+        if (!new_sticker_text) {
+            return;
+        }
+
+        this.props.pushNewSticker({
+            text: new_sticker_text,
+            bg_color: new_sticker_bg_color
+        });
+
+        this.refs.newStickerText.getDOMNode().value = '';
+    },
     render: function() {
         return (
             <div className="form">
                 <label>
                     Add new sticker:
-                    <input type="text" ref="newStickerName" />
+                    <input type="text" ref="newStickerText" />
                 </label>
-                <select className="colorSelect" ref="newStickerColor">
+                <select className="colorSelect" ref="newStickerBGColor">
                     <option value="yellow" data-image="images/yellow.gif"></option>
                     <option value="green" data-image="images/green.gif"></option>
                     <option value="red" data-image="images/red.gif"></option>
                 </select>
-                <button onClick={this.addNewSticker}>GO!</button>
+                <button onClick={this.handleClick}>GO!</button>
             </div>
         );
     }
 });
 
-var Content = React.createClass({
-    getInitialState: function() {
-        return {stickers: []};
-    },
-    componentWillMount: function() {
-        this.setState({
-            stickers: []
-        });
-    },
-    handleStickerAdd: function(sticker) {
-        var stickers = this.state.stickers,
-            maxStickerByID = _.max(stickers, 'id'),
-            maxStickerByZ = _.max(stickers, 'zIndex');
+// INIT
+var stickerCollectionInstance = new StickerCollection();
 
-        sticker['id'] = ( maxStickerByID === -Infinity ) ? 0 : (maxStickerByID.id + 1);
-        sticker['zIndex'] = ( maxStickerByZ === -Infinity ) ? 100 : (maxStickerByZ.zIndex + 100);
+var stickerListViewInstance = new StickerListView({collection: stickerCollectionInstance}),
+    addStickerFormViewInstance = new AddStickerFormView({collection: stickerCollectionInstance});
 
-        var updatedStickerList = stickers.concat([sticker]);
-
-        this.setState({stickers: updatedStickerList});
-    },
-    handleDrag: function(sticker) {
-        var stickerID = sticker.props.stickerID,
-            stickerZ = sticker.props.zIndex,
-            stickers = this.state.stickers,
-            maxZ = _.max(stickers, 'zIndex').zIndex;
-
-        if (stickers.length === 1) {
-            return false;
-        }
-
-        _.forEach(stickers, function(item) {
-            if (item.zIndex > stickerZ) {
-                item.zIndex -= 100;
-            }
-        });
-
-        _.find(stickers, {'id': stickerID}).zIndex = maxZ;
-
-        this.setState({stickers: stickers});
-
-        return false;
-    },
-    render: function() {
-        return (
-            <div className="content">
-                <AddStickerForm onStickerAdd={this.handleStickerAdd} />
-                <StickerList stickers={this.state.stickers} onDrag={this.handleDrag} />
-            </div>
-        );
-    }
-});
-
-React.renderComponent(
-    <Content />,
-    document.getElementById('wrap')
-);
-
+addStickerFormViewInstance.render();
+stickerListViewInstance.render();
