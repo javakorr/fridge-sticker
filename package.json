@@ -1,0 +1,24 @@
+{
+  "name": "fridge-sticker",
+  "version": "0.1.0",
+  "description": "Fridge with stickers on desktop",
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "grunt": "~0.4.5",
+    "grunt-browserify": "~2.1.3",
+    "grunt-react": "~0.8.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/javakorr/fridge-sticker.git"
+  },
+  "author": "javakorr",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/javakorr/fridge-sticker/issues"
+  }
+}
