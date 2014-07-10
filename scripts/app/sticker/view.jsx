@@ -24,7 +24,7 @@ define('app/sticker/view', ['backbone', 'lodash', 'react', 'app/sticker/list_com
             return false;
         },
         render: function() {
-            React.renderComponent(StickerListComponent( {stickers:this.collection, onDrag:this.updateZ.bind(this)} ), this.el);
+            React.renderComponent(<StickerListComponent stickers={this.collection} onDrag={this.updateZ.bind(this)} />, this.el);
 
             return this;
         }

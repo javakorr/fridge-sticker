@@ -16,7 +16,7 @@ define('app/form/view', ['lodash', 'backbone', 'react', 'app/sticker/model', 'ap
             this.collection.add(model);
         },
         render: function() {
-            React.renderComponent(AddStickerFormComponent( {pushNewSticker:this.addSticker.bind(this)} ), this.el);
+            React.renderComponent(<AddStickerFormComponent pushNewSticker={this.addSticker.bind(this)} />, this.el);
 
             return this;
         }

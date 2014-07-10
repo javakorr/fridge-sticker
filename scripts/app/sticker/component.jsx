@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 define('app/sticker/component', ['react', 'backbone', 'draggabilly'], function(React, Backbone, Draggabilly) {
-    var Sticker = React.createClass({displayName: 'Sticker',
+    var Sticker = React.createClass({
         componentWillMount: function() {
             var self = this;
 
@@ -25,7 +25,7 @@ define('app/sticker/component', ['react', 'backbone', 'draggabilly'], function(R
                 classString = 'sticker ' + this.props.bg_color;
 
             return (
-                React.DOM.div( {className:classString, style:styles}, this.props.text)
+                <div className={classString} style={styles}>{this.props.text}</div>
             );
         }
     });

@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 define('app/sticker/list_component', ['react', 'app/sticker/component'], function(React, Sticker) {
-    var StickerListComponent = React.createClass({displayName: 'StickerListComponent',
+    var StickerListComponent = React.createClass({
         getInitialState: function() {
             return {
                 stickers: []
@@ -23,13 +23,13 @@ define('app/sticker/list_component', ['react', 'app/sticker/component'], functio
             var self = this;
 
             var stickers = this.state.stickers.map(function(sticker) {
-                return Sticker( {sticker_model:sticker, stickerID:sticker.get('id'), text:sticker.get('text'), zIndex:sticker.get('.zIndex'), bg_color:sticker.get('bg_color'), onDrag:self.updateZ} );
+                return <Sticker sticker_model={sticker} stickerID={sticker.get('id')} text={sticker.get('text')} zIndex={sticker.get('.zIndex')} bg_color={sticker.get('bg_color')} onDrag={self.updateZ} />;
             });
 
             return (
-                React.DOM.div( {className:"stickerList"}, 
-                    stickers
-                )
+                <div className="stickerList">
+                    {stickers}
+                </div>
             );
         }
     });

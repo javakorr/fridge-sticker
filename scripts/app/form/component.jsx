@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 define('app/form/component', ['react', 'jquery', 'dd'], function(React, $, dd) {
-    var AddStickerFormComponent = React.createClass({displayName: 'AddStickerFormComponent',
+    var AddStickerFormComponent = React.createClass({
         componentDidMount: function() {
             $(document).ready(function(e) {
                 try {
@@ -28,18 +28,18 @@ define('app/form/component', ['react', 'jquery', 'dd'], function(React, $, dd) {
         },
         render: function() {
             return (
-                React.DOM.div( {className:"form"}, 
-                    React.DOM.label(null, 
-                        "Add new sticker:",
-                        React.DOM.input( {type:"text", ref:"newStickerText"} )
-                    ),
-                    React.DOM.select( {className:"colorSelect", ref:"newStickerBGColor"}, 
-                        React.DOM.option( {value:"yellow", 'data-image':"images/yellow.gif"}),
-                        React.DOM.option( {value:"green", 'data-image':"images/green.gif"}),
-                        React.DOM.option( {value:"red", 'data-image':"images/red.gif"})
-                    ),
-                    React.DOM.button( {onClick:this.handleClick}, "GO!")
-                )
+                <div className="form">
+                    <label>
+                        Add new sticker:
+                        <input type="text" ref="newStickerText" />
+                    </label>
+                    <select className="colorSelect" ref="newStickerBGColor">
+                        <option value="yellow" data-image="images/yellow.gif"></option>
+                        <option value="green" data-image="images/green.gif"></option>
+                        <option value="red" data-image="images/red.gif"></option>
+                    </select>
+                    <button onClick={this.handleClick}>GO!</button>
+                </div>
             );
         }
     });
