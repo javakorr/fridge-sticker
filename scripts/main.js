@@ -7,6 +7,24 @@ require.config({
         'react': 'lib/react-0.10.0',
         'underscore': 'lib/underscore-min',
         'lodash' : 'lib/lodash.min'
+    },
+    shim: {
+        'backbone': {
+            deps: ['jquery', 'underscore'],
+            exports: 'Backbone'
+        },
+        'dd': {
+            deps: ['jquery']
+        },
+        'lodash': {
+            exports: '_'
+        },
+        'draggabilly': {
+            exports: 'Draggabilly'
+        },
+        'react': {
+            exports: 'React'
+        }
     }
 });
 
