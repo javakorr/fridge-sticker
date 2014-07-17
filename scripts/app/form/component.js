@@ -12,17 +12,15 @@ define('app/form/component', ['react', 'jquery', 'dd'], function(React, $, dd) {
             });
         },
         handleClick: function() {
-            var new_sticker_text = this.refs.newStickerText.getDOMNode().value,
+            var new_sticker_text = this.refs.newStickerText.getDOMNode().value.trim(),
                 new_sticker_bg_color = this.refs.newStickerBGColor.getDOMNode().value;
 
-            if (!new_sticker_text) {
-                return;
+            if (new_sticker_text) {
+                this.props.pushNewSticker({
+                    text: new_sticker_text,
+                    bg_color: new_sticker_bg_color
+                });
             }
-
-            this.props.pushNewSticker({
-                text: new_sticker_text,
-                bg_color: new_sticker_bg_color
-            });
 
             this.refs.newStickerText.getDOMNode().value = '';
         },

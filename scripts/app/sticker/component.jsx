@@ -35,7 +35,7 @@ define('app/sticker/component', ['react', 'backbone', 'draggabilly', 'jquery'], 
             $element.find('.edit-button').addClass('hidden');
         },
         editText: function() {
-            var new_text = this.refs.updatedStickerText.getDOMNode().value,
+            var new_text = this.refs.updatedStickerText.getDOMNode().value.trim(),
                 $element = $(this.getDOMNode());
 
             if (new_text) {
