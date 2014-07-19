@@ -51,7 +51,7 @@ define('app/sticker/component', ['react', 'backbone', 'draggabilly', 'jquery'], 
         },
         render: function() {
             var styles = {zIndex: this.props.sticker_model.get('zIndex')},
-                classString = 'sticker ' + this.props.bg_color;
+                classString = 'sticker ' + this.props.sticker_model.get('bg_color');
 
             return (
                 <div className={classString} style={styles}>

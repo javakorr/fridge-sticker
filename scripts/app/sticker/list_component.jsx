@@ -26,7 +26,7 @@ define('app/sticker/list_component', ['react', 'app/sticker/component'], functio
             var self = this;
 
             var stickers = this.state.stickers.map(function(sticker) {
-                return <Sticker sticker_model={sticker} editSticker={self.editSticker} stickerID={sticker.get('id')} text={sticker.get('text')} zIndex={sticker.get('.zIndex')} bg_color={sticker.get('bg_color')} onDrag={self.updateZ} />;
+                return <Sticker sticker_model={sticker} editSticker={self.editSticker} onDrag={self.updateZ} />;
             });
 
             return (
